@@ -3,6 +3,15 @@ export default function Home() {
     <main className="min-h-screen bg-[#0a0a0f] text-white flex flex-col items-center justify-center px-6">
       {/* Hero */}
       <div className="text-center max-w-2xl">
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <img
+            src="/logo.jpg"
+            alt="Redemption Arc"
+            className="w-48 h-48 object-contain"
+          />
+        </div>
+
         <div className="inline-block bg-red-500/10 border border-red-500/30 rounded-full px-4 py-1.5 text-red-400 text-sm font-semibold tracking-widest uppercase mb-8">
           Every Loss Has a Second Chapter
         </div>
@@ -20,9 +29,9 @@ export default function Home() {
           The greater your disaster — the greater your shot at redemption.
         </p>
 
-        <button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-lg px-10 py-4 rounded-full transition-all transform hover:scale-105 shadow-2xl shadow-purple-900/50">
+        <a href="/confess" className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-lg px-10 py-4 rounded-full transition-all transform hover:scale-105 shadow-2xl shadow-purple-900/50">
           Connect Wallet & Confess
-        </button>
+        </a>
 
         <p className="text-gray-600 text-sm mt-4">
           No wallet data stored · On BASE · Weekly prizes
@@ -72,6 +81,66 @@ export default function Home() {
           <div className="text-purple-400 font-bold text-lg mb-1">It Takes a Village</div>
           <div className="text-3xl font-black mb-2">$25 in $RDMPT</div>
           <div className="text-gray-400 text-sm">Community votes.<br/>The people decide who suffered most.</div>
+        </div>
+      </div>
+
+      {/* Video */}
+      <div className="mt-20 max-w-2xl w-full">
+        <div className="text-center mb-6">
+          <div className="inline-block bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-gray-400 text-sm font-semibold tracking-widest uppercase mb-4">
+            The Story
+          </div>
+          <h2 className="text-2xl font-black">Watch Before You Confess</h2>
+        </div>
+        <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-black">
+          <video
+            src="https://d19fa2ka4qs0b8.cloudfront.net/clips/L_XLWCJP6MU/20260312_160406-certificate-of-release.mp4"
+            poster="/logo.jpg"
+            controls
+            playsInline
+            className="w-full"
+          />
+        </div>
+        <p className="text-center text-gray-600 text-xs mt-3 italic">
+          "Certificate of Release" — your worst trade might be your best story.
+        </p>
+      </div>
+
+      {/* Roadmap */}
+      <div className="mt-24 max-w-4xl w-full">
+        <div className="text-center mb-10">
+          <div className="inline-block bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-gray-400 text-sm font-semibold tracking-widest uppercase mb-4">
+            The Mission
+          </div>
+          <h2 className="text-3xl font-black">Five Stages of Redemption</h2>
+        </div>
+
+        <div className="relative">
+          {/* Connecting line */}
+          <div className="absolute top-8 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent hidden md:block" />
+
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            {[
+              { num: "I", icon: "🔦", title: "Find the Survivors", desc: "Confess your worst trade. You are not alone.", tg: false },
+              { num: "II", icon: "🤝", title: "Regroup & Support", desc: "Join the Telegram. The community witnesses your story. You witness theirs. Released pain becomes shared strength.", tg: true },
+              { num: "III", icon: "🩹", title: "Feed the Most Needy", desc: "Weekly prizes go to those who lost the most. Bigger loss — bigger shot.", tg: false },
+              { num: "IV", icon: "💪", title: "Make Us Stronger", desc: "Stay in the Telegram. We are organizing. Transforming released pain into the next mega-community. Hold $RDMPT. The LP is coming.", tg: true },
+              { num: "V", icon: "⚔️", title: "Get Back in the Game", desc: "Redeemed. Rebuilt. Ready. Your arc isn't over.", tg: false },
+            ].map((stage, i) => (
+              <div key={i} className={`relative text-center p-5 border rounded-2xl transition-all ${stage.tg ? 'border-purple-500/25 bg-purple-500/5 hover:border-purple-500/50' : 'border-white/8 bg-white/2 hover:border-purple-500/30'}`}>
+                <div className="text-xs font-bold text-purple-500/60 tracking-widest mb-2">STAGE {stage.num}</div>
+                <div className="text-3xl mb-3">{stage.icon}</div>
+                <h3 className="font-bold text-sm mb-2 leading-tight">{stage.title}</h3>
+                <p className="text-gray-500 text-xs leading-relaxed">{stage.desc}</p>
+                {stage.tg && (
+                  <a href="https://t.me/RedemptionArcWTF" target="_blank" rel="noopener noreferrer"
+                    className="mt-3 inline-block text-xs text-purple-400 border border-purple-500/30 rounded-full px-3 py-1 hover:bg-purple-500/10 transition-all">
+                    📢 Join Telegram →
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
