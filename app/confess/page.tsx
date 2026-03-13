@@ -193,6 +193,25 @@ This is my Redemption Arc.
       if (err) throw err
       setConfessionId(data.id)
       setStep('submitted')
+
+      // Fire Lazarus webhook directly (fire-and-forget)
+      fetch('/api/confession-webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-webhook-secret': 'lazarus-ra-2026',
+        },
+        body: JSON.stringify({
+          type: 'INSERT',
+          record: {
+            story,
+            asset: asset || null,
+            loss_amount_usd: lossAmount ? parseFloat(lossAmount) : null,
+            chain,
+            wallet_address: wallet,
+          },
+        }),
+      }).catch(() => {}) // silent fail — don't block the user
     } catch (e: any) {
       setError(e.message || 'Something went wrong. Try again.')
     } finally {
