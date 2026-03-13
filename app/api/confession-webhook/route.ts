@@ -54,11 +54,14 @@ Your Telegram post:`;
 }
 
 async function postToTelegram(text: string): Promise<void> {
-  await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+  const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: GROUP_CHAT_ID, text, parse_mode: 'Markdown' })
+    body: JSON.stringify({ chat_id: GROUP_CHAT_ID, text })
   });
+  const data = await res.json();
+  if (!data.ok) console.error('TG error:', JSON.stringify(data));
+  else console.log('TG posted:', data.result?.message_id);
 }
 
 export async function POST(req: NextRequest) {
