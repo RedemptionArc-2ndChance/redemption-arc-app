@@ -1,4 +1,32 @@
+"use client";
+import { useEffect, useState } from "react";
+
+function usePrizePool() {
+  const [balance, setBalance] = useState<number | null>(null);
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const prizeWallet = "0x211094117ca68e62d957af8312d5a18821d8a147";
+        const data = "0x70a08231" + "000000000000000000000000" + prizeWallet.slice(2);
+        const res = await fetch("https://base.llamarpc.com", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jsonrpc: "2.0", method: "eth_call", params: [{ to: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", data }, "latest"], id: 1 }),
+        });
+        const json = await res.json();
+        const raw = json.result;
+        if (raw && raw !== "0x") setBalance(parseInt(raw, 16) / 1e6);
+      } catch {}
+    };
+    fetchBalance();
+    const interval = setInterval(fetchBalance, 30000);
+    return () => clearInterval(interval);
+  }, []);
+  return balance;
+}
+
 export default function Home() {
+  const prizePool = usePrizePool();
   return (
     <main className="min-h-screen bg-[#0a0a0f] text-white flex flex-col items-center justify-center px-6">
       {/* Hero */}
@@ -36,6 +64,21 @@ export default function Home() {
         <p className="text-gray-600 text-sm mt-4">
           No wallet data stored · On BASE · Weekly prizes
         </p>
+      </div>
+
+      {/* Live Prize Pool */}
+      <div className="mt-12 w-full max-w-sm">
+        <div className="border border-green-500/30 bg-green-500/5 rounded-2xl p-5 text-center">
+          <div className="text-xs font-bold text-green-400/60 tracking-widest uppercase mb-1">Live Prize Pool</div>
+          <div className="text-4xl font-black text-green-400 mb-1">
+            {prizePool !== null ? `$${prizePool.toFixed(2)}` : "—"} <span className="text-xl">USDC</span>
+          </div>
+          <div className="text-gray-500 text-xs">Held in <span className="text-green-400/70">redemptionprizes.base.eth</span> · Verified on-chain</div>
+          <a href="https://basescan.org/address/0x211094117ca68e62d957af8312d5a18821d8a147" target="_blank" rel="noopener noreferrer"
+            className="inline-block mt-3 text-xs text-green-400/50 hover:text-green-400 transition-colors">
+            View on BaseScan →
+          </a>
+        </div>
       </div>
 
       {/* How It Works */}
@@ -94,7 +137,7 @@ export default function Home() {
         </div>
         <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-black">
           <video
-            src="https://d19fa2ka4qs0b8.cloudfront.net/clips/L_XLWCJP6MU/20260312_160406-certificate-of-release.mp4"
+            src="https://d19fa2ka4qs0b8.cloudfront.net/clips/g75JkFRtBZY/20260312_203907-redemption-arc-second-chance-for-crypto-survivors.mp4"
             poster="/logo.jpg"
             controls
             playsInline

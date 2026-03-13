@@ -128,6 +128,7 @@ export default function ConfessPage() {
   const [confessionId, setConfessionId] = useState<string | null>(null)
   // Community join state
   const [email, setEmail] = useState('')
+  const [tgUsername, setTgUsername] = useState('')
   const [xFollowed, setXFollowed] = useState(false)
   const [tgJoined, setTgJoined] = useState(false)
   const [skipCommunity, setSkipCommunity] = useState(false)
@@ -168,6 +169,7 @@ This is my Redemption Arc.
         await supabase.from('community_members').upsert({
           wallet_address: wallet,
           email,
+          tg_username: tgUsername || null,
           x_followed: xFollowed,
           tg_joined: tgJoined,
           village_eligible: true,
@@ -212,6 +214,21 @@ This is my Redemption Arc.
           },
         }),
       }).catch(() => {}) // silent fail — don't block the user
+
+      // Send confirmation email (fire-and-forget)
+      if (email) {
+        fetch('/api/send-confirmation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            asset: asset || null,
+            loss_amount_usd: lossAmount ? parseFloat(lossAmount) : null,
+            confession_id: data.id,
+            tg_username: tgUsername || null,
+          }),
+        }).catch(() => {})
+      }
     } catch (e: any) {
       setError(e.message || 'Something went wrong. Try again.')
     } finally {
@@ -407,6 +424,19 @@ This is my Redemption Arc.
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 text-sm"
               />
               <p className="text-gray-600 text-xs mt-1">For weekly draw notifications only. No spam, ever.</p>
+            </div>
+
+            {/* Telegram Username */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">Telegram Username <span className="text-gray-500 font-normal">(optional)</span></label>
+              <input
+                type="text"
+                placeholder="@yourhandle"
+                value={tgUsername}
+                onChange={e => setTgUsername(e.target.value.startsWith('@') ? e.target.value : e.target.value ? '@' + e.target.value : '')}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 text-sm"
+              />
+              <p className="text-gray-600 text-xs mt-1">Required to receive the Village Prize ($25 in $RDMPT) if you win.</p>
             </div>
 
             {/* X Follow */}
