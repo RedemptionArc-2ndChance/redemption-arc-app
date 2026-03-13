@@ -3,8 +3,10 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
+type Chain = 'evm' | 'solana'
+
 // Major crypto cultural moments — used to generate contextual Certificate of Release
-const CRYPTO_LORE: { keywords: string[], era: string, context: string }[] = [
+const CRYPTO_LORE: { keywords: string[], era: string, context: string, chains?: Chain[] }[] = [
   {
     keywords: ['luna', 'ust', 'terra', 'do kwon'],
     era: '2022 — The LUNA Collapse',
@@ -16,7 +18,7 @@ const CRYPTO_LORE: { keywords: string[], era: string, context: string }[] = [
     context: 'A JPEG of a bored monkey was selling for $300,000. Celebrities were minting. SNL did a skit. The New York Times ran a feature. You weren\'t delusional — you were watching a cultural moment unfold and you wanted in. The vibe was real, even if the floor wasn\'t.'
   },
   {
-    keywords: ['ftx', 'sam', 'sbf', 'alameda', 'solana', 'sol'],
+    keywords: ['ftx', 'sam', 'sbf', 'alameda'],
     era: '2022 — The FTX Collapse',
     context: 'SBF was on magazine covers. FTX had a Super Bowl ad. The exchange was "safe." Congress loved him. Then the balance sheet leaked. $8 billion in customer funds: gone. You trusted a system that was designed to look trustworthy. That\'s not a character flaw — that\'s fraud.'
   },
@@ -50,6 +52,43 @@ const CRYPTO_LORE: { keywords: string[], era: string, context: string }[] = [
     era: '2024 — The Points Meta',
     context: 'Restaking promised yield on yield. Points were the new token. Eigenlayer\'s waitlist had 50,000 people. The airdrop was supposed to change everything. You were playing the meta correctly — the meta just changed faster than the rewards materialized.'
   },
+  // ── SOLANA-SPECIFIC LORE ──
+  {
+    keywords: ['bonk', 'wif', 'dogwifhat', 'bome', 'popcat', 'book of meme', 'sol meme', 'solana meme'],
+    era: '2024 — The Solana Meme Supercycle',
+    context: 'A dog wearing a hat. A book of memes. A cat pressing a button. Solana meme coins in 2024 weren\'t just tokens — they were internet culture turned into financial instruments. You watched $WIF go from nothing to $4 billion market cap and thought: this is the one. Maybe it was. Maybe it wasn\'t. The chart doesn\'t care about your conviction.',
+    chains: ['solana']
+  },
+  {
+    keywords: ['phantom', 'drain', 'hack', 'phishing', 'seed phrase', 'private key', 'wallet hack'],
+    era: 'The Wallet Drain',
+    context: 'One wrong click. One fake site. One "connect wallet" that wasn\'t what it said it was. Phantom wallet drains hit thousands of Solana users — sometimes $50, sometimes $500,000. You weren\'t careless. You were targeted. The infrastructure was new. The attackers were not.',
+    chains: ['solana']
+  },
+  {
+    keywords: ['solana down', 'network outage', 'validators', 'sol outage', 'chain stopped', 'offline'],
+    era: 'The Solana Outages',
+    context: 'Solana went down. Again. The validators stopped. Your position was open. The liquidation was coming. You couldn\'t do anything — not because you made a bad decision, but because the chain decided to take a nap at the worst possible moment. Speed is only a feature when the network is actually running.',
+    chains: ['solana']
+  },
+  {
+    keywords: ['serum', 'srm', 'mango', 'mango markets', 'solend'],
+    era: '2022 — The Solana DeFi Collapse',
+    context: 'Serum was the crown jewel of Solana DeFi — until FTX collapsed and took it with them. Mango Markets got exploited for $117 million by a single trader who manipulated his own collateral. Solend nearly liquidated a whale and almost broke the protocol doing it. The ecosystem was real. The foundations weren\'t.',
+    chains: ['solana']
+  },
+  {
+    keywords: ['jup', 'jupiter', 'jto', 'jito', 'pyth', 'airdrop', 'sol airdrop', 'claim'],
+    era: '2024 — The Airdrop Season',
+    context: 'You farmed. You bridged. You clicked every button on every protocol for six months. The airdrop came. You sold. It pumped. You bought back in. It dumped. Or maybe you held — and watched it go from $2 to $0.30. Airdrop season on Solana had a way of giving you exactly what you wanted, then reminding you that wanting it was the problem.',
+    chains: ['solana']
+  },
+  {
+    keywords: ['sol', 'solana', 'phantom'],
+    era: 'The Solana Ecosystem',
+    context: 'Solana was supposed to be the Ethereum killer. Fast. Cheap. Backed by everyone. The ecosystem exploded — DeFi, NFTs, meme coins, payments. And then, in ways both dramatic and mundane, it delivered losses that were uniquely Solana: outages at the worst moment, rug pulls with polish, and the particular pain of watching a $10 transaction become a $0 position.',
+    chains: ['solana']
+  },
 ]
 
 function getContext(story: string, asset: string): { era: string, context: string } {
@@ -77,6 +116,7 @@ type Step = 'form' | 'certificate' | 'community' | 'submitted'
 
 export default function ConfessPage() {
   const [step, setStep] = useState<Step>('form')
+  const [chain, setChain] = useState<Chain>('evm')
   const [wallet, setWallet] = useState('')
   const [asset, setAsset] = useState('')
   const [lossAmount, setLossAmount] = useState('')
@@ -97,7 +137,8 @@ export default function ConfessPage() {
     setContextInfo(ctx)
     const lossLine = lossAmount ? '$' + Number(lossAmount).toLocaleString() : 'an amount I still cannot say out loud'
     const assetLine = asset || 'a trade I would rather forget'
-    const cert = `I, holder of wallet ${wallet.slice(0, 6)}...${wallet.slice(-4)}, hereby confess to the chain and to the community:
+    const chainLabel = chain === 'solana' ? 'Solana' : 'Ethereum/Base'
+    const cert = `I, holder of wallet ${wallet.slice(0, 6)}...${wallet.slice(-4)}, hereby confess to the ${chainLabel} chain and to the community:
 
 I lost ${lossLine} on ${assetLine}.
 
@@ -140,6 +181,7 @@ This is my Redemption Arc.
           story,
           loss_amount_usd: lossAmount ? parseFloat(lossAmount) : null,
           asset: asset || null,
+          chain: chain,
           certificate_text: certificate,
           week_number: week,
           year,
@@ -174,11 +216,49 @@ This is my Redemption Arc.
           <p className="text-gray-400 mb-10">No judgment. Only witnesses. The chain remembers — but the community forgives.</p>
 
           <div className="space-y-6">
+
+            {/* Chain Selector */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-3">Which chain broke your heart? *</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => { setChain('evm'); setWallet('') }}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all font-semibold text-sm ${
+                    chain === 'evm'
+                      ? 'border-purple-500 bg-purple-500/15 text-white'
+                      : 'border-white/10 bg-white/5 text-gray-400 hover:border-white/20'
+                  }`}
+                >
+                  <span className="text-xl">🔵</span>
+                  <div className="text-left">
+                    <div>Ethereum / Base</div>
+                    <div className="text-xs font-normal text-gray-500">ETH, ERC-20, NFTs</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setChain('solana'); setWallet('') }}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all font-semibold text-sm ${
+                    chain === 'solana'
+                      ? 'border-[#9945FF] bg-[#9945FF]/15 text-white'
+                      : 'border-white/10 bg-white/5 text-gray-400 hover:border-white/20'
+                  }`}
+                >
+                  <span className="text-xl">🟣</span>
+                  <div className="text-left">
+                    <div>Solana</div>
+                    <div className="text-xs font-normal text-gray-500">SOL, SPL tokens, memes</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-semibold text-gray-300 mb-2">Your Wallet Address *</label>
               <input
                 type="text"
-                placeholder="0x..."
+                placeholder={chain === 'solana' ? 'Your Solana wallet address...' : '0x...'}
                 value={wallet}
                 onChange={e => setWallet(e.target.value)}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 font-mono text-sm"
@@ -191,7 +271,7 @@ This is my Redemption Arc.
                 <label className="block text-sm font-semibold text-gray-300 mb-2">The Asset</label>
                 <input
                   type="text"
-                  placeholder="ETH, LUNA, BAYC..."
+                  placeholder={chain === 'solana' ? 'SOL, $WIF, $BONK...' : 'ETH, LUNA, BAYC...'}
                   value={asset}
                   onChange={e => setAsset(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50"
