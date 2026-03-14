@@ -204,7 +204,7 @@ This is my Redemption Arc.
           'x-webhook-secret': 'lazarus-ra-2026',
         },
         body: JSON.stringify({
-          type: 'INSERT',
+          source: 'browser',
           record: {
             story,
             asset: asset || null,

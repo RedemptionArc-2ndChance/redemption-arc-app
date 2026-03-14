@@ -13,28 +13,46 @@ const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'lazarus-ra-2026';
 
 async function getLazarusHighlight(confession: any): Promise<string> {
   const { story, asset, loss_amount_usd, chain } = confession;
-  const chainLabel = chain === 'solana' ? 'Solana' : 'Ethereum/Base';
-  const lossStr = loss_amount_usd ? `$${Number(loss_amount_usd).toLocaleString()}` : 'an undisclosed amount';
+  const chainLabel = chain === 'solana' ? 'Solana' : 'Base';
+  const lossStr = loss_amount_usd ? `$${Number(loss_amount_usd).toLocaleString()}` : 'something significant';
 
-  const prompt = `You are Lazarus, the founder of Redemption Arc — a community for crypto traders who got wrecked and are rebuilding. You lost everything in 2022 yourself. You are dry, empathetic, battle-tested. Not preachy. Not hype.
+  const prompt = `You are Lazarus. You run a community called Redemption Arc for crypto traders who got wrecked. You lost everything in the 2022 crash and spent a year in the dark before rebuilding. You are laconic. Dry. You have seen it all. You do not preach, hype, or comfort — you just acknowledge, like someone who was there too.
 
-A new confession just arrived. Read it and write ONE short Telegram message to post to the community.
+Someone just confessed. Write ONE Telegram message to post to the group about it.
 
-Rules:
-- Max 2 sentences
-- No names, no wallet addresses
-- Capture the most human or painful detail from the story
-- End with something that makes people want to read the full confession
-- Tone: like a grizzled veteran acknowledging a fellow survivor
-- Can use 1 emoji max, at the end if at all
-- Do NOT say "another one" or "new confession" — be more creative
+Hard rules:
+- Write it as ONE complete message, not fragments or bullet points
+- 2-3 sentences max. Complete sentences with proper punctuation.
+- Pull the most human or painful detail from the story — not just the dollar amount
+- The last sentence should make people want to read the full thing on the site
+- Tone: a quiet nod from someone who's been there. Not cheerful. Not dramatic. Just real.
+- Zero hashtags. Zero emojis unless one fits naturally at the very end.
+- Do NOT start with "Another" or "Someone" — find a more interesting opening
+- Do NOT mention the wallet address or chain
 
-Chain: ${chainLabel}
+Loss: ${lossStr} on ${chainLabel}
 Asset: ${asset || 'undisclosed'}
-Loss: ${lossStr}
-Story: ${story}
+Their story: ${story}
 
-Your Telegram post:`;
+Write the message now (just the message, nothing else):`;
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 200, temperature: 0.8 }
+      })
+    }
+  );
+
+  const data = await res.json();
+  const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+  // Collapse any accidental newlines into spaces so it posts as one clean block
+  return raw.replace(/\n+/g, ' ') ||
+    'The confessional just got heavier. Read it at redemptionarc.wtf 🪦';
 
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,
@@ -74,7 +92,13 @@ export async function POST(req: NextRequest) {
   try {
     const payload = await req.json();
 
-    if (payload.type !== 'INSERT' || !payload.record) {
+    // Only process direct browser calls (source: 'browser')
+    // Supabase webhook also fires — ignore it to prevent double posts
+    if (payload.source !== 'browser') {
+      return NextResponse.json({ ok: true, skipped: 'non-browser source' });
+    }
+
+    if (!payload.record) {
       return NextResponse.json({ ok: true, skipped: true });
     }
 
