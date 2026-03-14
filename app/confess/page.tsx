@@ -206,6 +206,7 @@ This is my Redemption Arc.
         },
         body: JSON.stringify({
           source: 'browser',
+          confession_id: data.id,
           record: {
             story,
             asset: asset || null,

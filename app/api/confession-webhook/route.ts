@@ -6,10 +6,17 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
+import { createClient } from '@supabase/supabase-js';
+
 const TG_TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
 const GROUP_CHAT_ID = process.env.TELEGRAM_GROUP_CHAT_ID!;
 const GEMINI_KEY = process.env.GEMINI_API_KEY!;
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'lazarus-ra-2026';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_SECRET = process.env.SUPABASE_SECRET_KEY!;
+
+// Admin client for atomic idempotency check
+const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SECRET);
 
 async function getLazarusHighlight(confession: any): Promise<string> {
   const { story, asset, loss_amount_usd, chain } = confession;
@@ -37,7 +44,7 @@ Their story: ${story}
 Write the message now (just the message, nothing else):`;
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -55,7 +62,7 @@ Write the message now (just the message, nothing else):`;
     'The confessional just got heavier. Read it at redemptionarc.wtf 🪦';
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -100,6 +107,23 @@ export async function POST(req: NextRequest) {
 
     if (!payload.record) {
       return NextResponse.json({ ok: true, skipped: true });
+    }
+
+    // Idempotency: atomically claim this confession — prevents Vercel retries from double-posting
+    const confessionId = payload.confession_id;
+    if (confessionId) {
+      const { data: claimed, error: claimErr } = await supabaseAdmin
+        .from('confessions')
+        .update({ lazarus_posted: true })
+        .eq('id', confessionId)
+        .eq('lazarus_posted', false)
+        .select('id')
+        .single();
+
+      if (claimErr || !claimed) {
+        // Already processed by a parallel invocation
+        return NextResponse.json({ ok: true, skipped: 'already posted' });
+      }
     }
 
     const confession = payload.record;
