@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
 type Chain = 'evm' | 'solana'
@@ -132,6 +132,16 @@ export default function ConfessPage() {
   const [xFollowed, setXFollowed] = useState(false)
   const [tgJoined, setTgJoined] = useState(false)
   const [skipCommunity, setSkipCommunity] = useState(false)
+  const [referredBy, setReferredBy] = useState<string | null>(null)
+  const [myReferralCode, setMyReferralCode] = useState<string>('')
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const ref = params.get('ref')
+      if (ref) setReferredBy(ref)
+    }
+  }, [])
 
   const generateCertificate = () => {
     const ctx = getContext(story, asset)
@@ -163,6 +173,11 @@ This is my Redemption Arc.
     setError('')
     try {
       const { week, year } = getCurrentWeek()
+      
+      const genCode = tgUsername 
+        ? tgUsername.replace('@', '').toLowerCase() 
+        : Math.random().toString(36).substring(2, 8)
+      setMyReferralCode(genCode)
 
       // If joining community, save member record first
       if (villageEligible && email) {
@@ -189,6 +204,8 @@ This is my Redemption Arc.
           year,
           village_eligible: villageEligible,
           tg_username: tgUsername || null,
+          referred_by: referredBy,
+          referral_code: genCode,
         })
         .select('id')
         .single()
@@ -562,6 +579,30 @@ This is my Redemption Arc.
                   {email ? '✓ Village Eligible' : '✗ Not entered'}
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div className="border border-blue-500/20 bg-blue-500/5 rounded-2xl p-6 mb-8 text-left">
+            <div className="text-blue-400 font-bold mb-3">Increase Your Odds 📈</div>
+            <p className="text-gray-400 text-sm mb-4">
+              Share your unique referral link. Every confession submitted through your link gives you a <strong>+20% weight multiplier</strong> in the Second Chance draw.
+            </p>
+            <div className="flex items-center gap-3">
+              <input 
+                type="text" 
+                readOnly 
+                value={`https://redemptionarc.wtf/confess?ref=${myReferralCode}`}
+                className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none"
+              />
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(`https://redemptionarc.wtf/confess?ref=${myReferralCode}`);
+                  alert('Copied to clipboard!');
+                }}
+                className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-xl transition-all whitespace-nowrap"
+              >
+                Copy Link
+              </button>
             </div>
           </div>
 
