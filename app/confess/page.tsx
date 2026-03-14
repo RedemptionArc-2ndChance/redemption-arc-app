@@ -188,6 +188,7 @@ This is my Redemption Arc.
           week_number: week,
           year,
           village_eligible: villageEligible,
+          tg_username: tgUsername || null,
         })
         .select('id')
         .single()
@@ -335,6 +336,20 @@ This is my Redemption Arc.
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 resize-none"
               />
               <p className="text-gray-600 text-xs mt-1">This is what the community votes on. Be honest. Be specific. Be human.</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Your Handle <span className="text-gray-500 font-normal">(optional — needed for prize payout)</span>
+              </label>
+              <input
+                type="text"
+                placeholder="@yourhandle — Telegram or X"
+                value={tgUsername}
+                onChange={e => setTgUsername(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50"
+              />
+              <p className="text-gray-600 text-xs mt-1">If you win, we'll reach out here. Telegram or X, either works.</p>
             </div>
 
             <button
