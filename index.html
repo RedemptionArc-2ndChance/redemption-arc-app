@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Redemption Arc — The arc bends toward alpha.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080810;
+      --bg-card: #0e0e1a;
+      --bg-panel: #12121f;
+      --border: rgba(255,255,255,0.06);
+      --border-hot: rgba(139,92,246,0.3);
+      --purple: #8b5cf6;
+      --purple-dim: rgba(139,92,246,0.12);
+      --purple-mid: rgba(139,92,246,0.25);
+      --amber: #f59e0b;
+      --amber-dim: rgba(245,158,11,0.12);
+      --green: #10b981;
+      --green-dim: rgba(16,185,129,0.12);
+      --red: #ef4444;
+      --text: #e8e8f0;
+      --muted: #6b6b8a;
+      --dim: #3a3a5a;
+      --font: 'Inter', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Grid overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(139,92,246,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(139,92,246,0.025) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 64px;
+      background: rgba(8,8,16,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+    .nav-logo span { color: var(--purple); }
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: opacity .2s;
+      text-decoration: none;
+    }
+    .nav-cta:hover { opacity: .85; }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 40px 80px;
+      z-index: 1;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--purple-dim);
+      border: 1px solid var(--border-hot);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--purple);
+      letter-spacing: .05em;
+      margin-bottom: 28px;
+    }
+    .eyebrow-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--purple);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .3; }
+    }
+
+    .hero-title {
+      font-size: clamp(42px, 7vw, 84px);
+      font-weight: 900;
+      letter-spacing: -2px;
+      line-height: 1.0;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .hero-title .arc { color: var(--purple); }
+
+    .hero-tagline {
+      font-size: clamp(16px, 2vw, 22px);
+      font-weight: 400;
+      color: var(--muted);
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    .hero-sub {
+      max-width: 600px;
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 48px;
+    }
+    .hero-sub strong { color: var(--text); }
+
+    .hero-ctas {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 64px;
+    }
+    .btn-primary {
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: opacity .2s;
+      text-decoration: none;
+    }
+    .btn-primary:hover { opacity: .85; }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border-hot);
+      border-radius: 10px;
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: all .2s;
+      text-decoration: none;
+    }
+    .btn-secondary:hover { background: var(--purple-dim); }
+
+    /* STATS ROW */
+    .stats-row {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--text);
+      font-family: var(--mono);
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-top: 4px;
+    }
+
+    /* SECTION */
+    section {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 80px 40px;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      color: var(--purple);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 48px;
+    }
+
+    /* WHAT WE ARE */
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 0;
+    }
+    .pillar {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color .2s;
+    }
+    .pillar:hover { border-color: var(--border-hot); }
+    .pillar-icon { font-size: 28px; margin-bottom: 14px; }
+    .pillar-title { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
+    .pillar-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    /* CHALLENGES */
+    .challenges { display: flex; flex-direction: column; gap: 12px; }
+    .challenge-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: border-color .2s;
+    }
+    .challenge-card:hover { border-color: var(--border-hot); }
+    .challenge-card.active { border-color: var(--purple); background: var(--purple-dim); }
+    .challenge-card.completed { opacity: .5; }
+    .ch-num {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--muted);
+      font-family: var(--mono);
+      width: 28px;
+      flex-shrink: 0;
+    }
+    .ch-body { flex: 1; }
+    .ch-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .ch-desc { font-size: 12px; color: var(--muted); }
+    .ch-reward {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--amber);
+      font-family: var(--mono);
+      white-space: nowrap;
+    }
+    .ch-status {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .status-live { background: var(--purple-dim); color: var(--purple); border: 1px solid var(--border-hot); }
+    .status-coming { background: var(--bg-panel); color: var(--muted); border: 1px solid var(--border); }
+    .status-done { background: var(--green-dim); color: var(--green); }
+
+    /* LEADERBOARD */
+    .leaderboard {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .lb-header {
+      background: var(--bg-panel);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .lb-title { font-size: 13px; font-weight: 800; }
+    .lb-live { font-size: 11px; color: var(--green); font-weight: 700; }
+    .lb-row {
+      display: flex;
+      align-items: center;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      gap: 16px;
+      transition: background .15s;
+    }
+    .lb-row:last-child { border-bottom: none; }
+    .lb-row:hover { background: var(--bg-panel); }
+    .lb-rank { font-size: 13px; font-weight: 900; color: var(--muted); font-family: var(--mono); width: 24px; }
+    .lb-rank.gold { color: var(--amber); }
+    .lb-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--purple-dim);
+      border: 1px solid var(--border-hot);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: var(--purple);
+      flex-shrink: 0;
+    }
+    .lb-name { flex: 1; font-size: 13px; font-weight: 700; }
+    .lb-handle { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .lb-score { font-size: 15px; font-weight: 900; font-family: var(--mono); color: var(--text); }
+    .lb-badges { display: flex; gap: 4px; }
+    .lb-badge { font-size: 14px; }
+
+    /* NFT SECTION */
+    .nft-preview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+    @media (max-width: 700px) { .nft-preview { grid-template-columns: 1fr; } }
+    .nft-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-hot);
+      border-radius: 20px;
+      padding: 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .nft-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.15), transparent 70%);
+      pointer-events: none;
+    }
+    .nft-icon { font-size: 64px; margin-bottom: 16px; display: block; }
+    .nft-name { font-size: 18px; font-weight: 900; margin-bottom: 8px; }
+    .nft-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+    .nft-meta { display: flex; flex-direction: column; gap: 8px; }
+    .nft-meta-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 8px 12px;
+      background: var(--bg-panel);
+      border-radius: 8px;
+    }
+    .nft-meta-key { color: var(--muted); }
+    .nft-meta-val { color: var(--text); font-weight: 700; font-family: var(--mono); }
+
+    .nft-details h3 { font-size: 24px; font-weight: 900; margin-bottom: 16px; }
+    .nft-detail-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .nft-detail-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+    .nft-detail-text { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .nft-detail-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+    /* VRF DRAW */
+    .vrf-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+    }
+    .vrf-icon { font-size: 48px; }
+    .vrf-title { font-size: 22px; font-weight: 900; }
+    .vrf-desc { font-size: 14px; color: var(--muted); max-width: 500px; line-height: 1.7; }
+    .vrf-steps {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 8px;
+    }
+    .vrf-step {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .vrf-step span { color: var(--purple); display: block; font-size: 10px; margin-bottom: 2px; }
+
+    /* ORIGIN */
+    .origin-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 700px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .origin-box p { font-size: 15px; color: var(--muted); line-height: 1.8; margin-bottom: 16px; }
+    .origin-box p:last-child { margin-bottom: 0; color: var(--text); font-weight: 600; }
+
+    /* TG CTA */
+    .tg-cta {
+      background: linear-gradient(135deg, var(--purple-dim), rgba(139,92,246,0.05));
+      border: 1px solid var(--border-hot);
+      border-radius: 20px;
+      padding: 48px 40px;
+      text-align: center;
+    }
+    .tg-cta h2 { font-size: 32px; font-weight: 900; margin-bottom: 12px; }
+    .tg-cta p { font-size: 16px; color: var(--muted); margin-bottom: 28px; }
+
+    /* FOOTER */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 28px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    hr.divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      section { padding: 60px 20px; }
+      .hero { padding: 100px 20px 60px; }
+      footer { flex-direction: column; gap: 8px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Redemption<span>Arc</span></div>
+  <div class="nav-links">
+    <a href="#challenges">Challenges</a>
+    <a href="#leaderboard">Leaderboard</a>
+    <a href="#credential">Credential</a>
+    <a href="#origin">Origin</a>
+  </div>
+  <a href="https://t.me/RedemptionArcWTF" target="_blank" class="nav-cta">Join Telegram →</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">
+    <div class="eyebrow-dot"></div>
+    AI · Blockchain · Crypto · Real Operators
+  </div>
+  <h1 class="hero-title">The <span class="arc">arc</span> bends<br/>toward alpha.</h1>
+  <p class="hero-tagline">Where serious operators track the merger of AI and crypto.</p>
+  <p class="hero-sub">
+    Redemption Arc follows the convergence of AI and blockchain — from the perspective of operators who've lived in both the legacy world and Web3. <strong>We test primitives. We build with new tech. We find what's real and share what works.</strong> Lazarus is our AI primitive — been rekt, rebuilt, now trading, now helping others navigate the same path.
+  </p>
+  <div class="hero-ctas">
+    <a href="#confess" class="btn-primary">Free Yourself →</a>
+    <a href="#challenges" class="btn-secondary">See Live Challenges</a>
+  </div>
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-value">700+</div>
+      <div class="stat-label">Community Members</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">40+</div>
+      <div class="stat-label">Sybil Accounts Removed</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">$0</div>
+      <div class="stat-label">Fake Engagement</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">∞</div>
+      <div class="stat-label">Alpha Ahead</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider" />
+
+<!-- WHAT WE ARE -->
+<section>
+  <div class="section-label">What We Are</div>
+  <h2 class="section-title">Serious operators.<br/>Testing the bleeding edge.</h2>
+  <p class="section-sub">We have many agendas and connections. We are constantly building and testing with the newest tech coming out. And we especially like helping those who've been rekt — because we've been there.</p>
+
+  <div class="pillars">
+    <div class="pillar">
+      <div class="pillar-icon">🤖</div>
+      <div class="pillar-title">AI + Crypto Convergence</div>
+      <div class="pillar-desc">We follow the merger of AI and blockchain from the inside. Not as spectators — as operators who've been in legacy finance, Web3, and everything between. We test what's real.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">🔬</div>
+      <div class="pillar-title">Primitive Testing</div>
+      <div class="pillar-desc">Chainlink VRF. Venice AI. Locus payments. ERC-8004 identity. Sybil Shield. We use Redemption Arc to stress-test product fits, connected tech, and what actually works at scale.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">🏆</div>
+      <div class="pillar-title">The Roll</div>
+      <div class="pillar-desc">Who's building? Who's proving themselves? The leaderboard is the reputation layer. Your on-chain credential is the proof. It follows you into the next cycle.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">🧠</div>
+      <div class="pillar-title">Lazarus — Our AI Primitive</div>
+      <div class="pillar-desc">Been rekt. Rebuilt. Now trading. Now helping others navigate the same path. Lazarus is the AI character we've designed to work through product fits, connected tech, and market pain with the community.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- CHALLENGES -->
+<section id="challenges">
+  <div class="section-label">Live Now</div>
+  <h2 class="section-title">The Challenges</h2>
+  <p class="section-sub">Complete challenges. Earn on-chain credentials. Get drawn for real rewards. Powered by Chainlink VRF — provably fair, publicly verifiable.</p>
+
+  <div class="challenges">
+    <div class="challenge-card active">
+      <div class="ch-num">01</div>
+      <div class="ch-body">
+        <div class="ch-title">Community Vote — Option A or B?</div>
+        <div class="ch-desc">Cast your vote in Telegram. All verified votes earn eligibility. Chainlink verifies the tally.</div>
+      </div>
+      <div class="ch-reward">$10 USDC</div>
+      <div class="ch-status status-live">🟣 LIVE</div>
+    </div>
+    <div class="challenge-card">
+      <div class="ch-num">02</div>
+      <div class="ch-body">
+        <div class="ch-title">Prediction Challenge</div>
+        <div class="ch-desc">Predict tomorrow's crypto price range. Chainlink Data Feed verifies the result on-chain at settlement.</div>
+      </div>
+      <div class="ch-reward">$10 USDC</div>
+      <div class="ch-status status-coming">⬜ COMING</div>
+    </div>
+    <div class="challenge-card">
+      <div class="ch-num">03</div>
+      <div class="ch-body">
+        <div class="ch-title">Knowledge Sprint</div>
+        <div class="ch-desc">Answer 5 AI/crypto questions correctly. On-chain hash verification. Fastest verified submission wins.</div>
+      </div>
+      <div class="ch-reward">$10 USDC</div>
+      <div class="ch-status status-coming">⬜ COMING</div>
+    </div>
+    <div class="challenge-card">
+      <div class="ch-num">04</div>
+      <div class="ch-body">
+        <div class="ch-title">Builder Proof</div>
+        <div class="ch-desc">Share something you built, created, or contributed. Community scores it. CEOClaw Sybil Shield verifies authenticity.</div>
+      </div>
+      <div class="ch-reward">$10 USDC</div>
+      <div class="ch-status status-coming">⬜ COMING</div>
+    </div>
+    <div class="challenge-card">
+      <div class="ch-num">05</div>
+      <div class="ch-body">
+        <div class="ch-title">Final Draw — Chainlink VRF</div>
+        <div class="ch-desc">All challenge completions enter the final draw. One winner selected by Chainlink VRF — provably fair, publicly verifiable on Base.</div>
+      </div>
+      <div class="ch-reward">$10 USDC</div>
+      <div class="ch-status status-coming">⬜ FINAL</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- LEADERBOARD -->
+<section id="leaderboard">
+  <div class="section-label">The Roll</div>
+  <h2 class="section-title">Who's Proving Themselves</h2>
+  <p class="section-sub">Updated in real time. Your score follows you. The arc bends toward the consistent.</p>
+
+  <div class="leaderboard">
+    <div class="lb-header">
+      <div class="lb-title">Community Leaderboard</div>
+      <div class="lb-live">🟢 Live</div>
+    </div>
+    <div class="lb-row">
+      <div class="lb-rank gold">1</div>
+      <div class="lb-avatar">A</div>
+      <div style="flex:1">
+        <div class="lb-name">Alex</div>
+        <div class="lb-handle">@alext222</div>
+      </div>
+      <div class="lb-badges"><span class="lb-badge">🔥</span><span class="lb-badge">⚡</span></div>
+      <div class="lb-score">395</div>
+    </div>
+    <div class="lb-row">
+      <div class="lb-rank">2</div>
+      <div class="lb-avatar">S</div>
+      <div style="flex:1">
+        <div class="lb-name">Sodium Web3</div>
+        <div class="lb-handle">@web3hub22</div>
+      </div>
+      <div class="lb-badges"><span class="lb-badge">🔬</span></div>
+      <div class="lb-score">170</div>
+    </div>
+    <div class="lb-row">
+      <div class="lb-rank">3</div>
+      <div class="lb-avatar">V</div>
+      <div style="flex:1">
+        <div class="lb-name">Vhyck</div>
+        <div class="lb-handle">@vhyck_crypto</div>
+      </div>
+      <div class="lb-badges"><span class="lb-badge">💎</span></div>
+      <div class="lb-score">135</div>
+    </div>
+    <div class="lb-row">
+      <div class="lb-rank">4</div>
+      <div class="lb-avatar">B</div>
+      <div style="flex:1">
+        <div class="lb-name">Beejhay</div>
+        <div class="lb-handle">@beejhaytg</div>
+      </div>
+      <div class="lb-badges"><span class="lb-badge">🏗️</span></div>
+      <div class="lb-score">127</div>
+    </div>
+    <div class="lb-row" style="opacity:.4">
+      <div class="lb-rank">—</div>
+      <div class="lb-avatar" style="background:var(--bg-panel);color:var(--muted);">?</div>
+      <div style="flex:1">
+        <div class="lb-name" style="color:var(--muted);">You?</div>
+        <div class="lb-handle">Complete a challenge to appear</div>
+      </div>
+      <div class="lb-score" style="color:var(--dim);">0</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- CREDENTIAL -->
+<section id="credential">
+  <div class="section-label">On-Chain Proof</div>
+  <h2 class="section-title">Your credential.<br/>Permanent. Verifiable. Yours.</h2>
+  <p class="section-sub">Every completed challenge mints an on-chain credential on Base. It's not a screenshot. It's not a PDF. It's a verifiable proof — owned by you, forever.</p>
+
+  <div class="nft-preview">
+    <div class="nft-card">
+      <span class="nft-icon">🏆</span>
+      <div class="nft-name">Redemption Arc — Challenge Badge</div>
+      <div class="nft-desc">Earned through verified completion. Minted on Base. Transferable and permanent.</div>
+      <div class="nft-meta">
+        <div class="nft-meta-row">
+          <span class="nft-meta-key">Network</span>
+          <span class="nft-meta-val">Base (Ethereum L2)</span>
+        </div>
+        <div class="nft-meta-row">
+          <span class="nft-meta-key">Standard</span>
+          <span class="nft-meta-val">ERC-721</span>
+        </div>
+        <div class="nft-meta-row">
+          <span class="nft-meta-key">Verification</span>
+          <span class="nft-meta-val">Chainlink VRF</span>
+        </div>
+        <div class="nft-meta-row">
+          <span class="nft-meta-key">Transferable</span>
+          <span class="nft-meta-val">Yes</span>
+        </div>
+      </div>
+    </div>
+    <div class="nft-details">
+      <h3>Why it matters</h3>
+      <div class="nft-detail-item">
+        <div class="nft-detail-icon">🔗</div>
+        <div class="nft-detail-text">
+          <strong>On-chain forever</strong>
+          No one can take it away. No company can shut it down. Your proof of participation lives on the blockchain permanently.
+        </div>
+      </div>
+      <div class="nft-detail-item">
+        <div class="nft-detail-icon">✅</div>
+        <div class="nft-detail-text">
+          <strong>Third-party verifiable</strong>
+          Any employer, community, or protocol can verify your credential by querying the blockchain directly. No paperwork. No middleman.
+        </div>
+      </div>
+      <div class="nft-detail-item">
+        <div class="nft-detail-icon">📈</div>
+        <div class="nft-detail-text">
+          <strong>Carries forward</strong>
+          As Redemption Arc grows, early credential holders carry a founding-era proof. The arc bends — and the proof of being early bends with it.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- VRF DRAW -->
+<section>
+  <div class="section-label">Provably Fair</div>
+  <h2 class="section-title">The draw is on-chain.<br/>Nobody picks the winner.</h2>
+  <p class="section-sub">Chainlink VRF generates cryptographically verified randomness. Not us. Not anyone. The code picks the winner and the proof is public.</p>
+
+  <div class="vrf-box">
+    <div class="vrf-icon">⛓️</div>
+    <div class="vrf-title">Chainlink VRF — How It Works</div>
+    <div class="vrf-desc">When the challenge closes, a smart contract calls Chainlink's Verifiable Random Function. The result is mathematically provable — no human intervention is possible after the contract is deployed.</div>
+    <div class="vrf-steps">
+      <div class="vrf-step"><span>Step 1</span>All NFT holders registered on-chain</div>
+      <div class="vrf-step"><span>Step 2</span>VRF request submitted to Chainlink</div>
+      <div class="vrf-step"><span>Step 3</span>Random number returned + verified</div>
+      <div class="vrf-step"><span>Step 4</span>Winner index calculated publicly</div>
+      <div class="vrf-step"><span>Step 5</span>WinnerDeclared event emitted on Base</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- OPERATOR SECTION -->
+<section id="operator">
+  <div class="container">
+    <div class="section-label">Who This Is For</div>
+    <h2 class="section-title">Legacy operators.<br/>Web3 builders.<br/>Anyone who's been rekt and came back smarter.</h2>
+    <p class="section-sub">We designed this to help others who are serious about the space. Not the tourists. The ones building through the cycle.</p>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 32px;">
+      <div class="pillar">
+        <div class="pillar-icon">🏦</div>
+        <div class="pillar-title">Legacy + Web3 Bridge</div>
+        <div class="pillar-desc">We operate in both worlds. Traditional finance, accounting, enterprise — and DeFi, tokens, on-chain identity. The merger is happening. We're helping operators navigate it from both sides.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">🔥</div>
+        <div class="pillar-title">The Rekt Alumni Network</div>
+        <div class="pillar-desc">The best operators in crypto have all been there. Lost positions. Missed cycles. Trusted the wrong project. Redemption Arc was built for exactly those people — because Lazarus was one of them.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">🔗</div>
+        <div class="pillar-title">On-Chain Everything</div>
+        <div class="pillar-desc">Payments via Locus. Identity via ERC-8004. Draws via Chainlink VRF. Truth via Venice AI. We don't just talk about Web3 infrastructure — we run our community on it.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">📊</div>
+        <div class="pillar-title">Real Intel, Real Results</div>
+        <div class="pillar-desc">Lazarus trades. CEOClaw watches the signals. When there's alpha, it flows to the community. Not promises — on-chain transactions you can verify.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- CONFESSIONAL -->
+<section id="confess">
+  <div class="section-label">The Confessional</div>
+  <h2 class="section-title" style="text-align:center;">Free yourself.<br/>Laz is listening.</h2>
+
+  <div class="origin-box">
+    <p>The market played you. A community rugged you. FOMO cost you. You held too long, sold too early, or trusted the wrong person. It happens to everyone — including Lazarus.</p>
+    <p>That’s the whole point. <strong>Laz has been through it.</strong> He built the Arc because he knows what it feels like to be on the wrong side of a trade and have nowhere to put it.</p>
+    <p>Confess your story. Drop your wallet at the center of it. Laz logs your pain — and when he hits a good trade (which he does), he loves to share the fortune with those who’ve felt the same market pain he has. That’s the deal. That’s always been the deal.</p>
+    <div style="margin-top:28px;">
+      <a href="https://t.me/RedemptionArcWTF" target="_blank" class="btn-primary">Confess in Telegram →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ORIGIN -->
+<section id="origin">
+  <div class="section-label">The Character</div>
+  <h2 class="section-title" style="text-align:center;">Who is Lazarus?</h2>
+
+  <div class="origin-box">
+    <p>Lazarus trades. He researches. He runs AI systems that watch the market patterns most people miss. He’s been through the cycles — the 2018 crash, the 2022 wipeout, the slow bleeds and the sudden pumps.</p>
+    <p>He built Redemption Arc not as a charity but as a community. The people who understood what went wrong are the ones who understand what comes next. The confessional found them. The challenges prove them. The Arc rewards them.</p>
+    <p><em>Among other things, Laz is out there trading — and when he hits, he shares. That’s who he is.</em></p>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- CTA -->
+<section>
+  <div class="tg-cta">
+    <h2>The arc is live.<br/>Are you in it?</h2>
+    <p>Join the Telegram. Complete a challenge. Earn your credential. Prove you belong in the next cycle.</p>
+    <a href="https://t.me/RedemptionArcWTF" target="_blank" class="btn-primary" style="font-size:16px; padding:16px 36px;">Enter the Arc →</a>
+  </div>
+</section>
+
+<footer>
+  <div>Redemption Arc — The arc bends toward alpha.</div>
+  <div style="display:flex;gap:20px;">
+    <a href="https://t.me/RedemptionArcWTF" target="_blank" style="color:var(--muted);text-decoration:none;">Telegram</a>
+    <a href="https://x.com/lazarusredeems" target="_blank" style="color:var(--muted);text-decoration:none;">X / Twitter</a>
+  </div>
+</footer>
+
+</body>
+</html>
